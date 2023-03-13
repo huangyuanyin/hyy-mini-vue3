@@ -1,3 +1,5 @@
-let aa: any = 1
+// 公共方法
 
-export default aa
+export function isObject(target) {
+  return target !== null && typeof target === 'object'
+}
