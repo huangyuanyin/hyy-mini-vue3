@@ -27,22 +27,46 @@ function createGetter(isReadonly = false, shallow = false) {
   }
 }
 
+// set方法
+function createSetter(shallow = false) {
+  // target: 目标对象；key: 属性名；value: 属性值；receiver: 代理对象
+  return function set(target, key, value, receiver) {
+    const res = Reflect.set(target, key, value, receiver) // 获取最新的值 => Reflect.set() => 设置对象的属性值 => target[key] = value
+    // Todo: 触发更新
+    //返回结果
+    return res
+  }
+}
+
+// get方法
 const get = createGetter() // 代理对象的get方法 => 不是只读的，是深的，是响应式的
 const shallowGet = createGetter(false, true) // 不是只读的，是浅的，是响应式的
 const readonlyGet = createGetter(true) // 是只读的，是深的，是响应式的
 const shallowReadonlyGet = createGetter(true, true) // 是只读的，是浅的，是响应式的
 
+// set方法
+const set = createSetter() // 不是只读的，是深的，是响应式的
+const shallowSet = createSetter(true) // 不是只读的，是浅的，是响应式的
+
 export const reactiveHandlers = {
-  get
+  get,
+  set
 }
 export const shallowReactiveHandlers = {
-  get: shallowGet
+  get: shallowGet,
+  set: shallowSet
 }
 export const readonlyHandlers = {
-  get: readonlyGet
+  get: readonlyGet,
+  set: (target, key, value) => {
+    console.warn('set on key "xxx" failed: target is readonly.')
+  }
 }
 export const shallowReadonlyHandlers = {
-  get: shallowReadonlyGet
+  get: shallowReadonlyGet,
+  set: (target, key, value) => {
+    console.warn('set on key "xxx" failed: target is readonly.')
+  }
 }
 
 // 柯里化

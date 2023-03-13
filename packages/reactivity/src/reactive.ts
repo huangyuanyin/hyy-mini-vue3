@@ -41,7 +41,7 @@ function createReactiveObject(target, isReadonly, baseHandlers) {
   if (proxyEs) {
     return proxyEs
   }
-  const proxy = new Proxy(target, baseHandlers) // proxy => 代理对象(参数一：目标对象，参数二：代理对象)
+  const proxy = new Proxy(target, baseHandlers) // proxy => 代理对象(参数一：目标对象，参数二：代理对象) baseHandlers => 处理拦截的对象 {get,set}
   // 将代理对象存储起来
   proxyMap.set(target, proxy)
   return proxy
