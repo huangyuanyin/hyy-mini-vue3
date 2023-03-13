@@ -5,8 +5,8 @@
   ],
   "type": "module",
   "scripts": {
-    "dev": "lerna run dev",
-    "build": "node scripts/build.js"
+    "build": "node scripts/build.js",
+    "dev": "node scripts/dev.js"
   },
   "name": "hyy-mini-vue3",
   "version": "1.0.0",
