@@ -1,9 +1,5 @@
 import { isObject } from '@vue/shared'
-
-const reactiveHandlers = {}
-const shallowReactiveHandlers = {}
-const readonlyHandlers = {}
-const shallowReadonlyHandlers = {}
+import { reactiveHandlers, shallowReactiveHandlers, readonlyHandlers, shallowReadonlyHandlers } from './baseHandlers'
 
 export function reactive(target) {
   // target: 目标对象
