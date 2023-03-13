@@ -1,5 +1,3 @@
-import aa from '@vue/shared'
-let a = 1
-let b = aa
+// 入口文件
 
-export default { a, b }
+export { reactive, shallowReactive, readonly, shallowReadonly } from './reactive'
