@@ -120,5 +120,18 @@ function createReactiveObject(target, isReadonly, baseHandlers) {
 // 4个方法：（1）是不是只读的（2）是不是浅的（代理的时候需不需要嵌套多层）（3）是不是响应式的（4）是不是只读的响应式的
 // 注意：4个方法的核心是proxy => 源码中 采用的是高阶函数中的科里化函数（根据不同的参数来进行处理）
 
-export { reactive, readonly, shallowReactive, shallowReadonly };
+// 1. 定义effect
+function effect(fn, options = {}) {
+    const effect = createReactEffect(fn); // 2.创建响应式effect
+    // 3. 判断是否是立即执行的effect
+    if (!options.lazy) ;
+    return effect; // 6.返回响应式effect
+}
+function createReactEffect(fn, options) {
+    const effect = function reactiveEffect() { }; // 5.创建响应式effect
+    fn(); // 6.执行用户的方法
+    return effect;
+}
+
+export { effect, reactive, readonly, shallowReactive, shallowReadonly };
 //# sourceMappingURL=reactivity.esm-bundler.js.map
