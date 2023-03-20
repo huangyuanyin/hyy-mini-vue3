@@ -5,6 +5,54 @@ function isObject(target) {
     return target !== null && typeof target === 'object';
 }
 
+// 1. 定义effect => effect：在视图中获取数据，触发get，收集依赖，数据发生变化，触发set，通知依赖更新
+function effect(fn, options = {}) {
+    const effect = createReactEffect(fn, options); // 2.创建响应式effect
+    // 3. 判断是否是立即执行的effect
+    if (!options.lazy) {
+        effect(); // 4.执行effect(默认执行)
+    }
+    return effect; // 6.返回响应式effect
+}
+let uid = 0; // 定义全局变量
+let activeEffect; // 定义全局变量 => 用于保存当前的effect
+const effectStack = []; // 定义一个栈 => 用于保存effect => 用于解决effect嵌套的问题
+function createReactEffect(fn, options) {
+    // 5.创建响应式effect
+    const effect = function reactiveEffect() {
+        try {
+            // 入栈
+            effectStack.push(effect); // 3.保存当前的effect
+            activeEffect = effect; // 1.保存当前的effect
+            fn(); // 6.执行用户的方法
+        }
+        finally {
+            // 出栈
+            effectStack.pop(); // 4.删除当前的effect
+            activeEffect = effectStack[effectStack.length - 1]; // 保存当前的effect
+        }
+    };
+    effect.id = uid++; // 给effect添加id => 用于区分effect
+    effect._isEffect = true; // 给effect添加标识 => 用于判断是否是响应式的effect
+    effect.raw = fn; // 给effect添加原始方法 => 用于保存用户的方法
+    effect.options = options; // 给effect添加配置项 => 用于保存用户的配置项
+    return effect;
+}
+// 收集依赖 在视图中获取数据，触发get，收集依赖
+function Track(target, type, key) {
+    console.log(target, type, key, activeEffect);
+}
+// 问题 (1) effect 是一个树形结构
+// effect(() => {
+//   // effect1
+//   state.name // 收集的effect1
+//   effect(() => {
+//     // effect2
+//     state.age // 收集的effect2
+//   })
+//   state.a // 收集的effect1
+// })
+
 // state=reactive({name:'zhangsan',age:18})
 function createGetter(isReadonly = false, shallow = false) {
     // target: 目标对象；key: 属性名；receiver: 代理对象
@@ -13,7 +61,10 @@ function createGetter(isReadonly = false, shallow = false) {
         const res = Reflect.get(target, key, receiver); // Reflect.get() => 获取对象的属性值 => target[key]
         // 2. 判断是否是只读的
         if (!isReadonly) {
-            // 如果不是只读的，就进行依赖收集
+            // 如果不是只读的，就进行依赖收集 => 收集依赖，等数据变化后更新视图
+            // 收集effect
+            // target: 目标对象；type: 操作类型；key: 属性名
+            Track(target, 0 /* TrackOpType.GET */, key);
             return res;
         }
         // 3. 判断是否是浅的
@@ -121,19 +172,6 @@ function createReactiveObject(target, isReadonly, baseHandlers) {
 }
 // 4个方法：（1）是不是只读的（2）是不是浅的（代理的时候需不需要嵌套多层）（3）是不是响应式的（4）是不是只读的响应式的
 // 注意：4个方法的核心是proxy => 源码中 采用的是高阶函数中的科里化函数（根据不同的参数来进行处理）
-
-// 1. 定义effect
-function effect(fn, options = {}) {
-    const effect = createReactEffect(fn); // 2.创建响应式effect
-    // 3. 判断是否是立即执行的effect
-    if (!options.lazy) ;
-    return effect; // 6.返回响应式effect
-}
-function createReactEffect(fn, options) {
-    const effect = function reactiveEffect() { }; // 5.创建响应式effect
-    fn(); // 6.执行用户的方法
-    return effect;
-}
 
 exports.effect = effect;
 exports.reactive = reactive;

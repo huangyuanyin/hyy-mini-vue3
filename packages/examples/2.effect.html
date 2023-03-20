@@ -10,10 +10,16 @@
     <script src="../reactivity/dist/reactivity.global.js"></script>
     <script>
       const { reactive, effect } = VueReactivity
-      let obj = { name: '张三', age: { n: 11 } }
+      let obj = { name: '张三', age: { n: 11 }, a: 3 }
       const state = reactive(obj)
       effect(() => {
-        console.log('500')
+        // effect1
+        state.name // 收集的effect1
+        effect(() => {
+          // effect2
+          state.age // 收集的effect2
+        })
+        state.a // 收集的effect1
       })
     </script>
   </body>

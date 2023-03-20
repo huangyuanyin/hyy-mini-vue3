@@ -1,4 +1,6 @@
 import { isObject } from '@vue/shared'
+import { Track } from './effect'
+import { TrackOpType } from './operations'
 import { reactive, readonly } from './reactive'
 
 // state=reactive({name:'zhangsan',age:18})
@@ -9,7 +11,10 @@ function createGetter(isReadonly = false, shallow = false) {
     const res = Reflect.get(target, key, receiver) // Reflect.get() => 获取对象的属性值 => target[key]
     // 2. 判断是否是只读的
     if (!isReadonly) {
-      // 如果不是只读的，就进行依赖收集
+      // 如果不是只读的，就进行依赖收集 => 收集依赖，等数据变化后更新视图
+      // 收集effect
+      // target: 目标对象；type: 操作类型；key: 属性名
+      Track(target, TrackOpType.GET, key)
       return res
     }
     // 3. 判断是否是浅的
